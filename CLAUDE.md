@@ -215,13 +215,46 @@ docs/
 
 > 一切都像液体 —— 慢、软、粘、会融合。拒绝硬边、硬切、硬角。
 
-**核心CSS属性**：
+### 视觉质感基准（iOS 26 级别）
+
+> **我们的玻璃不是普通 glassmorphism。**
+> 不是一层薄磨砂膜，而是一块有厚度、有折射、有重量感的真实玻璃。
+> 透过玻璃看到的颜色，应该比直接看背景更鲜艳、更深邃 —— 这是高级毛玻璃的核心标志。
+
+**三个必须达到的质感要素**：
+
+1. **通透配方（blur + saturate + brightness）**：`backdrop-filter` 不能只有 `blur`，必须叠加 `saturate(180%)` 让背景色透过玻璃后更鲜艳，以及 `brightness(1.1)` 让玻璃自身带微光。缺少 `saturate` 的玻璃只是"糊"，不是"通透"。
+
+2. **Hover Lift（抬起 + 彩色投影）**：可交互的玻璃元素 hover 时不只是 `scale` 放大（那是2D感觉），而是 `translateY(-4px)` 抬起 + 底部彩色扩散投影放大（3D悬浮感）。卡片从界面"浮起来"，有重量、有空间。
+
+3. **微颗粒噪点纹理**：玻璃表面叠加极低透明度（3-5%）的 noise texture，打破数字的"完美光滑"，增加实体触感。用内联 SVG filter 的 `<feTurbulence>` 生成，不引入外部图片。
+
+### 核心CSS属性
+
 ```css
-/* 玻璃基础 */
---glass-bg: rgba(255, 255, 255, 0.12);
---glass-border: rgba(255, 255, 255, 0.18);
---glass-blur: 24px;
---glass-inner-glow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+/* ===== 玻璃配方 ===== */
+--glass-bg: rgba(255, 255, 255, 0.08);
+--glass-bg-hover: rgba(255, 255, 255, 0.12);
+--glass-bg-active: rgba(255, 255, 255, 0.15);
+
+/* 完整 backdrop-filter：blur + saturate + brightness 三件套 */
+--glass-blur: blur(24px) saturate(180%) brightness(1.1);
+--glass-blur-heavy: blur(40px) saturate(200%) brightness(1.05);
+--glass-blur-light: blur(12px) saturate(160%) brightness(1.1);
+
+/* 边框 — 三层高光叠加模拟激光切割玻璃边缘 */
+--glass-border: 1px solid rgba(255, 255, 255, 0.25);
+
+/* 阴影 — 内发光 + 彩色内阴影（模拟背景色折射） */
+--glass-glow: inset 0 1px 1px rgba(255, 255, 255, 0.3),
+              inset 0 -1px 2px rgba(255, 255, 255, 0.05),
+              inset 0 0 12px rgba(255, 255, 255, 0.04);
+
+/* Hover Lift — 抬起 + 彩色扩散投影 */
+--glass-lift-shadow: 0 8px 32px rgba(120, 60, 255, 0.15),
+                     0 4px 16px rgba(0, 0, 0, 0.1);
+--glass-lift-shadow-hover: 0 16px 48px rgba(120, 60, 255, 0.25),
+                           0 8px 24px rgba(0, 0, 0, 0.15);
 
 /* 圆角（永远偏大） */
 --radius-sm: 12px;
@@ -246,26 +279,53 @@ docs/
 ```css
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 0.5px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: var(--radius-md);
-  box-shadow: var(--glass-inner-glow);
+  box-shadow: var(--glass-glow);
+  /* 噪点纹理：极低透明度，增加实体触感 */
+  position: relative;
+}
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.035;
+  pointer-events: none;
+  /* 用 SVG filter 生成噪点，不引入外部图片 */
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hover Lift 交互 — 所有可点击的玻璃元素 */
+.glass-interactive {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.2s ease;
+  box-shadow: var(--glass-glow), var(--glass-lift-shadow);
+}
+.glass-interactive:hover {
+  transform: translateY(-4px);
+  background: var(--glass-bg-hover);
+  box-shadow: var(--glass-glow), var(--glass-lift-shadow-hover);
+}
+.glass-interactive:active {
+  transform: translateY(-1px) scale(0.98);
+  background: var(--glass-bg-active);
 }
 ```
 
 ### 颜色系统
 
-背景使用渐变色彩球（大的 radial-gradient blobs），通过 `backdrop-filter: blur()` 产生毛玻璃效果。
+背景使用渐变色彩球（大的 radial-gradient blobs），通过 `backdrop-filter` 的 `blur + saturate` 产生通透且鲜艳的毛玻璃效果。
 
 | 用途 | 色值 | 说明 |
 |------|------|------|
-| 背景色球-暖 | #FF6B6B → #FFA07A | 暖色调，心情好时 |
-| 背景色球-冷 | #4FACFE → #00F2FE | 冷色调，平静状态 |
-| 背景色球-紫 | #A18CD1 → #FBC2EB | 梦幻感，夜间模式 |
+| 背景色球-极光紫 | #7B2FFF → transparent | 高饱和霓虹紫，核心色调 |
+| 背景色球-深海蓝 | #0A3CFF → transparent | 高饱和霓虹蓝，冷调平衡 |
+| 背景色球-蜜桃粉 | #FF6B9D → transparent | 高饱和粉，暖调点缀 |
 | 强调色 | #FFFFFF 半透明 | 高光、边框、分割线 |
-| 文字-主 | rgba(255,255,255,0.9) | 标题 |
-| 文字-次 | rgba(255,255,255,0.6) | 正文、描述 |
+| 文字-主 | rgba(255,255,255,0.92) | 标题 |
+| 文字-次 | rgba(255,255,255,0.60) | 正文、描述 |
 | 文字-弱 | rgba(255,255,255,0.35) | 提示、时间戳 |
 
 ### 动画规范
@@ -277,7 +337,8 @@ docs/
 | 液态膨胀 | spring, stiffness: 80, damping: 12 | Modal生长打开 |
 | 呼吸脉动 | ease-in-out, 3s, infinite | 宠物待机状态 |
 | 光球飞行 | spring + 贝塞尔路径 | 完成任务反馈 |
-| hover膨胀 | scale: 1.04, 0.2s | 所有可点击元素 |
+| **hover-lift** | translateY(-4px), 0.3s ease + 投影放大 | 所有可点击玻璃元素 |
+| active-press | translateY(-1px) scale(0.98), 0.1s | 按下状态 |
 
 ---
 
@@ -398,7 +459,8 @@ MVP 阶段使用 **iOS sheet 层级式**切换（务实、好实现）：
 ### 4. 全局系统
 
 **Liquid Background**：
-- 3-4个大色彩球（radial-gradient），慢速漂移
+- 3个大色彩球（radial-gradient），慢速漂移
+- 色球使用高饱和霓虹色调：极光紫 #7B2FFF / 深海蓝 #0A3CFF / 蜜桃粉 #FF6B9D
 - 用 CSS animation 或 Framer Motion 做缓慢位移
 - 跟随管家情绪微调色温（开心=暖，委屈=冷）
 
@@ -682,3 +744,4 @@ life-quest/
 | 2025-04-15 | Modal 从点击位置原位生长 | 比统一从底部弹出更有"液态"感 |
 | 2025-04-15 | 一个 session 一个角色 | 避免角色混乱，保证每个产出物的专业度和一致性 |
 | 2025-04-15 | 角色间通过文档交接 | docs/prd → docs/design → src/ → docs/qa，形成可追溯的工作链 |
+| 2026-04-16 | 玻璃质感升级至 iOS 26 级别 | backdrop-filter 增加 saturate(180%)+brightness(1.1)；hover 改为 Lift 模型（translateY+彩色投影）；增加噪点纹理；背景色球升级为高饱和霓虹色（#7B2FFF/#0A3CFF/#FF6B9D）；边框改为三层高光叠加。此变更不影响 PM 的用户故事和验收标准，仅影响 Designer 的视觉规格和组件模板 |

@@ -1,0 +1,121 @@
+/**
+ * liquid-glass.css — 全局设计系统 CSS 变量
+ *
+ * 设计规格：docs/design/design-system.md
+ * 对应 PRD AC-F1-03
+ *
+ * 使用方式：在 app/layout.tsx 或 globals.css 中 @import
+ */
+
+:root {
+  /* ===== 玻璃表面 ===== */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-hover: rgba(255, 255, 255, 0.12);
+  --glass-bg-active: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-border-hover: rgba(255, 255, 255, 0.28);
+  --glass-blur: 24px;
+  --glass-blur-heavy: 40px;
+  --glass-blur-light: 12px;
+  --glass-glow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  --glass-glow-strong: inset 0 1px 2px rgba(255, 255, 255, 0.35);
+
+  /* ===== 文字色 ===== */
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.60);
+  --text-tertiary: rgba(255, 255, 255, 0.35);
+  --text-accent: rgba(255, 255, 255, 1.0);
+
+  /* ===== 语义色 ===== */
+  --color-success: #5DCAA5;
+  --color-warning: #EF9F27;
+  --color-info: #85B7EB;
+  --color-mood-happy: #FFA07A;
+  --color-mood-sad: #4FACFE;
+
+  /* ===== 圆角 ===== */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* ===== 间距 ===== */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ===== 字体 ===== */
+  --font-primary: 'SF Pro Display', -apple-system, BlinkMacSystemFont,
+                  'Segoe UI', 'Noto Sans SC', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* ===== 字号 ===== */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+
+  /* ===== 层级 ===== */
+  --z-background: -1;
+  --z-particles: 0;
+  --z-content: 1;
+  --z-tabbar: 10;
+  --z-modal-overlay: 20;
+  --z-modal: 21;
+  --z-toast: 30;
+}
+
+/* ===== 全局基础样式 ===== */
+body {
+  font-family: var(--font-primary);
+  color: var(--text-primary);
+  background: #0a0a12;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== 减少动画偏好 ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== 背景色球动画关键帧 ===== */
+/* 注意: 色球时长需要交错，形成自然的不规则漂移 */
+
+@keyframes blob-drift-a {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(20%, 15%); }
+}
+
+@keyframes blob-drift-b {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-18%, -20%); }
+}
+
+@keyframes blob-drift-c {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-12%, 10%); }
+}
+
+/* ===== 呼吸动画 ===== */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}

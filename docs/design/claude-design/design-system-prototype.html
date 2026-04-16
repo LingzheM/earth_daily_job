@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Quest — Liquid Glass Design System Prototype</title>
+<style>
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-bg-hover: rgba(255, 255, 255, 0.12);
+    --glass-bg-active: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-border-hover: rgba(255, 255, 255, 0.28);
+    --glass-blur: 24px;
+    --glass-blur-heavy: 40px;
+    --glass-blur-light: 12px;
+    --glass-glow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    --glass-glow-strong: inset 0 1px 2px rgba(255, 255, 255, 0.35);
+    --text-primary: rgba(255, 255, 255, 0.92);
+    --text-secondary: rgba(255, 255, 255, 0.60);
+    --text-tertiary: rgba(255, 255, 255, 0.35);
+    --text-accent: rgba(255, 255, 255, 1.0);
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --radius-full: 9999px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: #0a0a12;
+  }
+
+  /* ===== LIQUID BACKGROUND ===== */
+  .liquid-bg {
+    position: fixed; inset: 0; z-index: -1; overflow: hidden;
+  }
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(80px);
+  }
+  .blob-a {
+    width: 50vmax; height: 50vmax; top: -10%; left: -10%;
+    background: radial-gradient(circle, #FF6B6B 0%, transparent 70%);
+    animation: drift-a 25s ease-in-out infinite alternate;
+  }
+  .blob-b {
+    width: 45vmax; height: 45vmax; bottom: -15%; right: -10%;
+    background: radial-gradient(circle, #4FACFE 0%, transparent 70%);
+    animation: drift-b 30s ease-in-out infinite alternate;
+  }
+  .blob-c {
+    width: 40vmax; height: 40vmax; top: 40%; left: 50%;
+    background: radial-gradient(circle, #A18CD1 0%, transparent 70%);
+    animation: drift-c 22s ease-in-out infinite alternate;
+  }
+  @keyframes drift-a { to { transform: translate(20%, 15%); } }
+  @keyframes drift-b { to { transform: translate(-18%, -20%); } }
+  @keyframes drift-c { to { transform: translate(-12%, 10%); } }
+
+  /* ===== LIQUID PARTICLES ===== */
+  .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+  /* ===== GLASS COMPONENTS ===== */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 0.5px solid var(--glass-border);
+    box-shadow: var(--glass-glow);
+  }
+
+  .glass-card {
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .glass-card.hoverable:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-hover);
+  }
+
+  .glass-btn {
+    border-radius: var(--radius-md);
+    padding: 12px 24px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px;
+    backdrop-filter: blur(var(--glass-blur-light));
+    -webkit-backdrop-filter: blur(var(--glass-blur-light));
+    outline: none; user-select: none;
+  }
+  .glass-btn:hover { transform: scale(1.04); background: var(--glass-bg-hover); }
+  .glass-btn:active { transform: scale(0.96); background: var(--glass-bg-active); }
+  .glass-btn.sm { min-height: 36px; padding: 8px 16px; font-size: 12px; border-radius: var(--radius-sm); }
+  .glass-btn.lg { min-height: 52px; padding: 14px 32px; font-size: 15px; border-radius: 20px; }
+
+  .glass-modal-overlay {
+    position: fixed; inset: 0; z-index: 20;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .glass-modal-overlay.open { opacity: 1; pointer-events: all; }
+  .glass-modal {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(var(--glass-blur-heavy));
+    -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+    border: 0.5px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--glass-glow-strong), 0 8px 32px rgba(0,0,0,0.2);
+    padding: 24px;
+    max-width: 360px; width: 90%;
+    transform: scale(0.85); opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  }
+  .glass-modal-overlay.open .glass-modal {
+    transform: scale(1); opacity: 1;
+  }
+
+  /* ===== TABBAR ===== */
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+    height: 64px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(var(--glass-blur-heavy));
+    -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+    border-top: 0.5px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: space-around;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; position: relative;
+    min-height: 44px; justify-content: center;
+    color: var(--text-tertiary); transition: color 0.2s;
+  }
+  .tab-item.active { color: var(--text-accent); }
+  .tab-item svg { width: 24px; height: 24px; }
+  .tab-item span { font-size: 11px; font-weight: 400; }
+  .tab-item.active span { font-weight: 500; }
+  .tab-indicator {
+    position: absolute; top: 4px;
+    width: 48px; height: 28px; border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.12);
+    box-shadow: var(--glass-glow);
+    transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+
+  /* ===== PAGE LAYOUT ===== */
+  .page {
+    position: relative; z-index: 1;
+    max-width: 480px; margin: 0 auto;
+    padding: 24px 16px 96px;
+  }
+  .section-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+    color: var(--text-tertiary); text-transform: uppercase;
+    margin: 32px 0 12px;
+  }
+  .section-label:first-child { margin-top: 8px; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
+
+  .component-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .swatch {
+    width: 48px; height: 48px; border-radius: var(--radius-sm);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 4px; font-size: 9px; color: rgba(255,255,255,0.5);
+  }
+  .token-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 0; border-bottom: 0.5px solid rgba(255,255,255,0.06);
+  }
+  .token-label { font-size: 12px; color: var(--text-secondary); min-width: 80px; }
+  .token-value { font-size: 13px; font-family: 'SF Mono', monospace; color: var(--text-primary); }
+
+  .demo-card-content h3 { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .demo-card-content p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blob, .particle { animation: none !important; }
+    * { transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Liquid Background -->
+<div class="liquid-bg">
+  <div class="blob blob-a"></div>
+  <div class="blob blob-b"></div>
+  <div class="blob blob-c"></div>
+</div>
+
+<!-- Particles -->
+<canvas class="particles" id="particles"></canvas>
+
+<!-- Page Content -->
+<div class="page">
+
+  <h1>Liquid Glass</h1>
+  <p class="subtitle">Design System Prototype — Life Quest</p>
+
+  <!-- Color Palette -->
+  <div class="section-label">Background blobs</div>
+  <div class="component-row">
+    <div class="swatch" style="background:#FF6B6B">A</div>
+    <div class="swatch" style="background:#4FACFE">B</div>
+    <div class="swatch" style="background:#A18CD1">C</div>
+    <div class="swatch" style="background:#00F2FE">D</div>
+  </div>
+
+  <div class="section-label">Text colors</div>
+  <div class="token-row">
+    <span class="token-label">primary</span>
+    <span class="token-value" style="color:var(--text-primary)">rgba(255,255,255,0.92)</span>
+  </div>
+  <div class="token-row">
+    <span class="token-label">secondary</span>
+    <span class="token-value" style="color:var(--text-secondary)">rgba(255,255,255,0.60)</span>
+  </div>
+  <div class="token-row">
+    <span class="token-label">tertiary</span>
+    <span class="token-value" style="color:var(--text-tertiary)">rgba(255,255,255,0.35)</span>
+  </div>
+
+  <!-- GlassCard -->
+  <div class="section-label">GlassCard</div>
+  <div class="glass glass-card hoverable" style="margin-bottom:12px">
+    <div class="demo-card-content">
+      <h3>Hoverable Card</h3>
+      <p>Hover 时背景亮度和边框亮度同时提升，过渡 0.2s ease。</p>
+    </div>
+  </div>
+  <div class="glass glass-card">
+    <div class="demo-card-content">
+      <h3>Static Card</h3>
+      <p>无 hover 效果的静态展示卡片。注意顶部的白色高光线 — 这是厚玻璃的关键质感。</p>
+    </div>
+  </div>
+
+  <!-- GlassButton -->
+  <div class="section-label">GlassButton</div>
+  <div class="component-row">
+    <button class="glass glass-btn sm">Small</button>
+    <button class="glass glass-btn">Medium</button>
+    <button class="glass glass-btn lg">Large</button>
+  </div>
+  <div class="component-row">
+    <button class="glass glass-btn" style="flex:1">Hover 放大 1.04x</button>
+  </div>
+  <div class="component-row">
+    <button class="glass glass-btn" style="flex:1" id="modal-trigger">点击打开 GlassModal</button>
+  </div>
+
+  <!-- Radius -->
+  <div class="section-label">Border radius</div>
+  <div class="component-row">
+    <div class="glass" style="width:56px;height:56px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary)">12</div>
+    <div class="glass" style="width:56px;height:56px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary)">16</div>
+    <div class="glass" style="width:56px;height:56px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary)">24</div>
+    <div class="glass" style="width:56px;height:56px;border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary)">32</div>
+    <div class="glass" style="width:56px;height:56px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-secondary)">pill</div>
+  </div>
+
+  <!-- Typography -->
+  <div class="section-label">Typography scale</div>
+  <div class="glass glass-card">
+    <p style="font-size:32px;font-weight:700;line-height:1.2;margin-bottom:4px">32px / 700</p>
+    <p style="font-size:24px;font-weight:600;line-height:1.3;margin-bottom:4px">24px / 600</p>
+    <p style="font-size:18px;font-weight:500;line-height:1.4;margin-bottom:4px">18px / 500</p>
+    <p style="font-size:15px;font-weight:400;line-height:1.6;margin-bottom:4px;color:var(--text-secondary)">15px / 400 — body text</p>
+    <p style="font-size:13px;font-weight:400;line-height:1.5;margin-bottom:4px;color:var(--text-secondary)">13px / 400 — small text</p>
+    <p style="font-size:11px;font-weight:400;line-height:1.4;color:var(--text-tertiary)">11px / 400 — tiny label</p>
+  </div>
+
+  <!-- Animation demo -->
+  <div class="section-label">Animation: breathe</div>
+  <div style="display:flex;justify-content:center;padding:24px 0">
+    <div class="glass" style="width:80px;height:100px;border-radius:40px 40px 36px 36px;animation:breathe 3s ease-in-out infinite;display:flex;align-items:center;justify-content:center">
+      <div style="display:flex;gap:16px;margin-top:-8px">
+        <div style="width:10px;height:10px;background:var(--text-primary);border-radius:50%"></div>
+        <div style="width:10px;height:10px;background:var(--text-primary);border-radius:50%"></div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--text-tertiary);text-align:center">scale 1.0 ↔ 1.04, 3s ease-in-out, infinite</p>
+
+  <div style="height:32px"></div>
+</div>
+
+<!-- Modal -->
+<div class="glass-modal-overlay" id="modal-overlay">
+  <div class="glass-modal">
+    <h3 style="font-size:18px;font-weight:500;margin-bottom:8px">GlassModal</h3>
+    <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:20px">
+      打开时 scale 0.85→1.0 配合 springGentle 弹性。<br>
+      Phase 2 将升级为从点击位置原位生长。
+    </p>
+    <button class="glass glass-btn" style="width:100%" id="modal-close">关闭</button>
+  </div>
+</div>
+
+<!-- TabBar -->
+<div class="tabbar" id="tabbar">
+  <div class="tab-indicator" id="tab-indicator"></div>
+  <div class="tab-item active" data-tab="0" onclick="switchTab(0)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+    <span>主页</span>
+  </div>
+  <div class="tab-item" data-tab="1" onclick="switchTab(1)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m-7-9H4m16 0h1M6.3 6.3l-.7-.7m12.8 12.8l-.7-.7M6.3 17.7l-.7.7M18.4 5.6l-.7.7"/><circle cx="12" cy="12" r="4"/></svg>
+    <span>任务</span>
+  </div>
+  <div class="tab-item" data-tab="2" onclick="switchTab(2)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11.5 3.5l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z"/><path d="M5 16l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2L2 18.3 4.2 18z" opacity=".5"/><path d="M17 14l.8 1.5 1.7.3-1.2 1.2.3 1.7-1.6-.8-1.5.8.3-1.7-1.3-1.2 1.8-.3z" opacity=".5"/></svg>
+    <span>记忆</span>
+  </div>
+  <div class="tab-item" data-tab="3" onclick="switchTab(3)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <span>设置</span>
+  </div>
+</div>
+
+<style>
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+</style>
+
+<script>
+// Tab switching with liquid indicator
+function switchTab(idx) {
+  document.querySelectorAll('.tab-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  const items = document.querySelectorAll('.tab-item');
+  const activeEl = items[idx];
+  const indicator = document.getElementById('tab-indicator');
+  const rect = activeEl.getBoundingClientRect();
+  const barRect = document.getElementById('tabbar').getBoundingClientRect();
+  indicator.style.left = (rect.left - barRect.left + rect.width / 2 - 24) + 'px';
+}
+
+// Init indicator position
+window.addEventListener('load', () => switchTab(0));
+window.addEventListener('resize', () => {
+  const active = document.querySelector('.tab-item.active');
+  if (active) switchTab(parseInt(active.dataset.tab));
+});
+
+// Modal
+document.getElementById('modal-trigger').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.add('open');
+});
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('modal-overlay').classList.remove('open');
+});
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    e.currentTarget.classList.remove('open');
+  }
+});
+
+// Particles
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let raf;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function createParticle() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: 2 + Math.random() * 5,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
+      alpha: 0.1 + Math.random() * 0.2,
+    };
+  }
+
+  for (let i = 0; i < 8; i++) particles.push(createParticle());
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < -10) p.x = canvas.width + 10;
+      if (p.x > canvas.width + 10) p.x = -10;
+      if (p.y < -10) p.y = canvas.height + 10;
+      if (p.y > canvas.height + 10) p.y = -10;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(draw);
+  }
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    draw();
+  }
+})();
+</script>
+</body>
+</html>
