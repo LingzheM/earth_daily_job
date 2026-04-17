@@ -1,6 +1,6 @@
 'use client';
 
-import { KeyboardEvent, type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { springGentle, modalVariant } from '@/lib/animations';
 
@@ -9,6 +9,7 @@ interface GlassModalProps {
   onClose: () => void;
   children: ReactNode;
   className?: string;
+  /** Phase 2: trigger element position for origin-grow animation */
   originRect?: DOMRect;
 }
 
@@ -16,7 +17,7 @@ export default function GlassModal({
   isOpen,
   onClose,
   children,
-  className = ''
+  className = '',
 }: GlassModalProps) {
   // ESC key handler
   useEffect(() => {
@@ -76,5 +77,5 @@ export default function GlassModal({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
