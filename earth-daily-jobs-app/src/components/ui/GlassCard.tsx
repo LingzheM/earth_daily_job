@@ -1,8 +1,8 @@
 'use client';
 
-import { type ReactNode } from "react";
+import { type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { liftVariant, springBouncy } from "@/lib/animations";
+import { liftVariant, springBouncy } from '@/lib/animations';
 
 interface GlassCardProps {
   children: ReactNode;
@@ -18,13 +18,12 @@ export default function GlassCard({
   hoverable = false,
   onClick,
 }: GlassCardProps) {
-  const isInteractive = hoverable || !!onclick;
+  const isInteractive = hoverable || !!onClick;
 
   return (
     <motion.div
       className={`glass ${isInteractive ? 'glass-interactive' : ''} ${className}`}
-      style={{ borderRadius: 'var(--radius-lg)',
-        padding: 'var(--space-4)' }}
+      style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)' }}
       variants={isInteractive ? liftVariant : undefined}
       whileHover={isInteractive ? 'hover' : undefined}
       whileTap={isInteractive ? 'tap' : undefined}
@@ -35,8 +34,8 @@ export default function GlassCard({
       onKeyDown={
         onClick
           ? (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
                 onClick();
               }
             }
