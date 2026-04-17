@@ -29,7 +29,7 @@ export default function GlassModal({
   // Prevent background scroll
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = '', };
+    return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
   return (
