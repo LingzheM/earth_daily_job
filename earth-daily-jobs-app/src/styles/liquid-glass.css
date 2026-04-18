@@ -25,11 +25,12 @@
   --glass-border:       1px solid rgba(255, 255, 255, 0.25);
   --glass-border-hover: 1px solid rgba(255, 255, 255, 0.35);
 
-  /* Inner glow — three layers simulate thick-glass light refraction */
+  /* Inner glow — three white layers + one colored layer (liquid refraction) */
   --glass-glow:
     inset 0 1px 1px rgba(255, 255, 255, 0.30),
     inset 0 -1px 2px rgba(255, 255, 255, 0.05),
-    inset 0 0 12px rgba(255, 255, 255, 0.04);
+    inset 0 0 12px rgba(255, 255, 255, 0.04),
+    inset 0 0 20px rgba(123, 47, 255, 0.06);
   --glass-glow-strong:
     inset 0 1px 2px rgba(255, 255, 255, 0.35),
     inset 0 -1px 2px rgba(255, 255, 255, 0.05);
@@ -118,7 +119,7 @@
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border);
   border-radius: var(--radius-md);
-  box-shadow: var(--glass-glow);
+  box-shadow: var(--glass-glow), 0 8px 40px rgba(123, 47, 255, 0.10);
   position: relative; /* required: :after noise needs relative parent */
   color: var(--text-primary);
 }
