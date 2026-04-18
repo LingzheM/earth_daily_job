@@ -3,7 +3,7 @@
 import { motion, LayoutGroup } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { springBouncy, liftVariant, tabIndicator } from '@/lib/animations';
+import { springBouncy, springGentle, liftVariant } from '@/lib/animations';
 
 const tabs = [
   { id: 'home', label: 'Home', icon: '🏠', href: '/' },
@@ -38,7 +38,7 @@ export default function TabBar() {
           alignItems: 'center',
           justifyContent: 'space-around',
           height: '72px',
-          paddingBottom: 'env(safe-are-inset-bottom, 0px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           backdropFilter: 'var(--glass-blur-heavy)',
           WebkitBackdropFilter: 'var(--glass-blur-heavy)',
           borderRadius: 0,
@@ -70,19 +70,18 @@ export default function TabBar() {
                 paddingTop: '4px',
               }}
             >
-              {/** Active indicator - layoutId enables cross-tab animation */}
+              {/** Active indicator pill — slides between tabs via layoutId */}
               {isActive && (
                 <motion.div
                   layoutId="tabIndicator"
-                  transition={tabIndicator}
+                  transition={springGentle}
                   style={{
                     position: 'absolute',
-                    bottom: '-2px',
-                    height: '3px',
-                    width: '40%',
-                    background: 'linear-gradient(90deg, #FF6B9D, #7B2FFF)',
-                    borderRadius: '9999px',
-                    boxShadow: '0 0 10px rgba(123, 47, 255, 0.6),'
+                    inset: '4px 8px',
+                    borderRadius: 'var(--radius-lg)',
+                    background: 'rgba(255, 255, 255, 0.12)',
+                    boxShadow: 'var(--glass-glow)',
+                    zIndex: 0,
                   }}
                 />
               )}
@@ -91,6 +90,8 @@ export default function TabBar() {
                 style={{
                   fontSize: '24px',
                   lineHeight: 1,
+                  position: 'relative',
+                  zIndex: 1,
                   color: isActive ? 'var(--text-accent)' : 'var(--text-secondary)',
                   transition: 'color 0.2s ease',
                 }}
@@ -106,8 +107,10 @@ export default function TabBar() {
                 style={{
                   fontSize: '10px',
                   fontWeight: isActive ? 600 : 400,
+                  position: 'relative',
+                  zIndex: 1,
                   color: isActive ? 'var(--text-accent)' : 'var(--text-tertiary)',
-                  transition: 'color 0.2s ease font-weight 0.2s ease',
+                  transition: 'color 0.2s ease, font-weight 0.2s ease',
                 }}
               >
                 {tab.label}
