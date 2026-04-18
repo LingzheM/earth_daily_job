@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import LiquidBackground from '@/components/global/LiquidBackground';
 import LiquidParticles from '@/components/global/LiquidParticles';
+import TabBar from '@/components/global/TabBar';
 
 export const metadata: Metadata = {
   title: 'Life Quest — 地球Online',
@@ -32,8 +33,7 @@ export default function RootLayout({
         >
           {children}
         </div>
-
-        {/* TabBar placeholder — replaced in Task 19 */}
+        <TabBar />
       </body>
     </html>
   );
