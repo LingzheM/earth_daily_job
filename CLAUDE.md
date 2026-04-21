@@ -75,8 +75,9 @@
 | 组件模板 | React/TSX 代码片段 | 带 liquid-glass 样式的骨架代码，开发往里填逻辑 |
 | 交互流程 | 状态机描述或流程图 | 每个页面/组件的状态切换说明 |
 | 设计稿 | 写入 `docs/design/` | 每个组件一份设计文档 |
+| **组件任务卡** | Markdown，写入 `docs/tasks/` | **每个组件一张**，集成视觉参数 + props 外部接口 + 技术要求 + AC 标准，开发直接领取，无需跨文档拼信息 |
 
-**Designer 不做的事**：不定义业务逻辑，不写 Zustand store，不做数据结构设计
+**Designer 不做的事**：不定义业务逻辑，不写 Zustand store，不做数据结构设计；任务卡中的 props 接口只定义外部可见 API（名称/类型/默认值），内部实现由 Developer 自主决定
 
 ---
 
@@ -84,7 +85,7 @@
 
 **Session 启动口令**：`角色：前端开发`
 
-**输入**：PM 的需求文档 + Designer 的视觉/动画规格 + 组件模板
+**输入**：PM 的需求文档 + Designer 的组件任务卡（含视觉/动画规格 + props 接口 + AC 标准）
 **输出**：
 
 | 交付物 | 说明 |
@@ -133,7 +134,9 @@
 │  Session 2 — 🎨 Designer                │
 │  输入：PM 的 PRD                        │
 │  输出：视觉规格 + 动画参数 + 组件模板    │
+│        + 组件任务卡（开发领取单）        │
 │  写入：docs/design/component-X.md       │
+│        docs/tasks/task-component-X.md  │
 └──────────────────┬──────────────────────┘
                    │
                    ▼
@@ -165,17 +168,49 @@ docs/
 │   ├── phase-2-tasks.md
 │   ├── phase-3-pond.md
 │   └── phase-4-polish.md
-├── design/                       # UI 设计师产出
+├── design/                       # UI 设计师产出：详细视觉/动画规格
 │   ├── design-system.md          # 全局设计系统规格
 │   ├── butler.md                 # 管家视觉/动画规格
 │   ├── task-droplet.md
 │   ├── memory-pond.md
 │   └── tab-bar.md
+├── tasks/                        # UI 设计师产出：组件任务卡（开发领取单）
+│   ├── task-glass-card.md        # 每张卡集成视觉参数+props接口+AC标准
+│   ├── task-butler.md
+│   ├── task-task-droplet.md
+│   └── task-tab-bar.md
 ├── qa/                           # 测试验收产出
 │   ├── test-report-phase-1.md
 │   └── bug-list.md
 └── decisions/                    # 决策记录（补充 CLAUDE.md 底部的表格）
     └── adr-001-no-threejs.md
+```
+
+### 组件任务卡模板
+
+Designer 在交付设计稿的同时，为每个组件生成一张任务卡，写入 `docs/tasks/`：
+
+```markdown
+## 组件任务卡
+
+**组件名称**：（如 GlassCard）
+**关联 PRD**：docs/prd/phase-N-*.md#AC-XXX
+**设计规格**：docs/design/component-*.md
+
+### 视觉要求
+（从设计文档摘录精确数值：尺寸/圆角/颜色/backdrop-filter）
+
+### 动画要求
+（Framer Motion 参数，可直接 copy；注明对应 animations.ts 中的变量名）
+
+### Props 接口（外部 API）
+（仅定义名称/类型/默认值，不规定内部实现）
+
+### 技术要求
+（Tailwind 策略、浏览器兼容要求、性能注意事项）
+
+### 验收标准
+（直接引用 PRD 中对应的 AC 条目，开发自测用）
 ```
 
 ### Session 启动模板
@@ -599,6 +634,7 @@ life-quest/
 ├── docs/                         # 协作产出物（角色交接文档）
 │   ├── prd/                      # 🎯 PM 产出：需求文档
 │   ├── design/                   # 🎨 Designer 产出：视觉/动画规格
+│   ├── tasks/                    # 🎨 Designer 产出：组件任务卡（开发领取单）
 │   ├── qa/                       # 🧪 QA 产出：测试报告
 │   └── decisions/                # 架构决策记录（ADR）
 ├── public/
