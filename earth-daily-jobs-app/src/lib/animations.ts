@@ -85,6 +85,14 @@ export const modalVariant = {
   exit:    { scale: 0.9,  opacity: 0 },
 };
 
+/** 书本翻页 — ~0.52s settle, 轻微超出回弹 (ζ ≈ 0.61) */
+export const springBookFlip = {
+  type: 'spring' as const,
+  stiffness: 150,
+  damping: 15,
+  mass: 1,
+};
+
 /** Blob drift — used by LiquidBackground for keyframe paths */
 export const blobDrift = {
   x: [0, 80, -60, 40, 0] as number[],
