@@ -4,10 +4,20 @@ import { useState } from "react";
 import Butler from "@/components/butler/Butler";
 import GlassButton from "@/components/ui/GlassButton";
 import { type ButlerMood } from "@/components/butler/ButlerFace";
+import DonutCanvas from "@/components/ui/DonutCanvas";
+import TiltedPlanet from "@/components/ui/TiltedPlanet";
+import SolidPlanet from "@/components/ui/SolidPlanet";
 
 export default function HomePage() {
   const [mood, setMood] = useState<ButlerMood>('normal');
 
+  return (
+    <main className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
+      <SolidPlanet />
+    </main>
+  )
+
+  /** 
   return (
     <main 
       style={{
@@ -48,4 +58,5 @@ export default function HomePage() {
       </div>
     </main>
   );
+  */
 }
